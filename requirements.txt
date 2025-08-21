@@ -1,0 +1,7 @@
+joblib
+matplotlib
+numpy>=1.19
+numba>=0.51
+scipy>=1.5.1
+scikit-learn>=0.22.0
+pyod==2.0.5
