@@ -8,7 +8,6 @@ import joblib
 from tqdm import tqdm
 import random
 
-# One-Class SVM 只能单一模版 或者多个模版做one-class svm
 class StructureAnomalyDetector:
     """
     结构异常检测器 - 专注于弹窗、白屏、黑屏、遮挡等
