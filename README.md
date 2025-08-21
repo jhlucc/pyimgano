@@ -3,3 +3,6 @@
 - 基类
 - lof
 - pyod
+- knn
+- ocsvm
+- 
