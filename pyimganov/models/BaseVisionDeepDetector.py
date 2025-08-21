@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from PIL import Image
-from pyod.models.deep_learning import BaseDeepLearningDetector
+from pyod.models.base_dl import BaseDeepLearningDetector
 
 
 class ImageDataset(Dataset):
