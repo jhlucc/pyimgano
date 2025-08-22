@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALAD 算法交互式详解</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 
+        Chosen Palette: Scholarly Indigo 
+        Application Structure Plan: A multi-section SPA design with interactive components. Sections include: 1. Overview, 2. Interactive 'Players' cards, 3. Step-by-step animated 'Training Game' flowchart on canvas, 4. Real-time 'Detection Test' canvas simulation, 5. Formula reference. This structure transforms the linear report into an exploratory learning tool, prioritizing hands-on understanding over passive reading. 
+        Visualization & Content Choices: Report Info -> Goal -> Viz/Method. Intro -> Inform -> Hero Section -> HTML/CSS. Components -> Organize/Inform -> Interactive Cards -> JS click events. Training Process -> Explain Change/Process -> Animated Canvas Flowchart -> JS/Canvas API. Detection Logic -> Demonstrate Relationship -> Interactive Canvas Simulation -> JS/Canvas API. Formulas -> Inform -> Static Text -> HTML. This approach uses interactivity to make abstract concepts tangible. 
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. 
+    -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 450px;
+            max-height: 60vh;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-4">
+                <h1 class="text-xl font-bold text-indigo-600">ALAD 算法详解</h1>
+                <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#overview" class="hover:text-indigo-600 transition-colors">核心思想</a>
+                    <a href="#players" class="hover:text-indigo-600 transition-colors">核心组件</a>
+                    <a href="#training" class="hover:text-indigo-600 transition-colors">训练博弈</a>
+                    <a href="#detection" class="hover:text-indigo-600 transition-colors">检测模拟</a>
+                    <a href="#formulas" class="hover:text-indigo-600 transition-colors">核心公式</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-16">
+
+        <!-- Section 1: Overview -->
+        <section id="overview" class="text-center mb-24">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">对抗学习与异常检测</h2>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                ALAD (Adversarially Learned Anomaly Detection) 是一种基于生成对抗网络 (GAN) 思想的强大异常检测算法。它不直接学习“异常”，而是通过一场精心设计的“伪造者”与“鉴定师”的对抗游戏，极致地学习“正常数据”的内在规律。
+            </p>
+        </section>
+
+        <!-- Section 2: The Players -->
+        <section id="players" class="mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800">游戏中的玩家</h3>
+                <p class="text-slate-600 mt-2">点击卡片了解每个组件的职责。</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Generator Team -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-6 text-center">
+                    <h4 class="text-xl font-bold text-indigo-700 mb-2">伪造者团队 (生成器)</h4>
+                    <p class="text-indigo-900">目标：学习并模仿真实数据的生成过程，企图以假乱真。</p>
+                </div>
+                <div class="player-card bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <h5 class="text-lg font-bold mb-2">🎨 编码器 (Encoder)</h5>
+                    <p class="text-sm text-slate-600">将高维的输入样本（如图片）压缩，并映射到一个低维的潜在表示（特征）。这就像是为一件复杂的文物绘制一幅高度浓缩的“设计草图”。</p>
+                </div>
+                <div class="player-card bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <h5 class="text-lg font-bold mb-2">🎨 解码器 (Decoder)</h5>
+                    <p class="text-sm text-slate-600">接收一个潜在变量（无论是真实的还是伪造的），并尝试将其解码、重构为一个与原始数据维度相同的高维样本。这就像是根据“设计草-图”来复原一件文物。</p>
+                </div>
+                <div></div>
+
+                <!-- Discriminator Team -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-rose-50 border-2 border-rose-200 rounded-2xl p-6 text-center mt-8">
+                    <h4 class="text-xl font-bold text-rose-700 mb-2">鉴定师团队 (判别器)</h4>
+                    <p class="text-rose-900">三个独立的专家级鉴定师，共同构成强大的防御体系。</p>
+                </div>
+                <div class="player-card bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <h5 class="text-lg font-bold mb-2">🔍 D<sub>xx</sub> (数据一致性鉴定师)</h5>
+                    <p class="text-sm text-slate-600">负责判断两份“数据”是否都来自真实的分布。</p>
+                </div>
+                <div class="player-card bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <h5 class="text-lg font-bold mb-2">🔍 D<sub>zz</sub> (特征一致性鉴定师)</h5>
+                    <p class="text-sm text-slate-600">负责判断两份“特征”（潜在向量）是否都来自真实的分布。</p>
+                </div>
+                <div class="player-card bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <h5 class="text-lg font-bold mb-2">🔍 D<sub>xz</sub> (匹配度鉴定师)</h5>
+                    <p class="text-sm text-slate-600">负责判断一份“数据”和一份“特征”是否是原配。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Training Game -->
+        <section id="training" class="mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800">训练博弈：一场精心设计的猫鼠游戏</h3>
+                <p class="text-slate-600 mt-2">通过点击按钮，分步观察训练流程中的数据流动和对抗过程。</p>
+            </div>
+            <div class="chart-container bg-white rounded-2xl shadow-lg p-4">
+                <canvas id="trainingCanvas"></canvas>
+            </div>
+            <div class="flex justify-center space-x-4 mt-6">
+                <button id="prevStepBtn" class="bg-slate-200 text-slate-700 font-semibold py-2 px-6 rounded-lg hover:bg-slate-300 transition-colors disabled:opacity-50">上一步</button>
+                <button id="nextStepBtn" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors">下一步</button>
+            </div>
+            <div id="training-explanation" class="mt-6 text-center bg-indigo-50 p-4 rounded-lg text-indigo-800 min-h-[60px]"></div>
+        </section>
+
+        <!-- Section 4: Detection Simulation -->
+        <section id="detection" class="mb-24">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800">检测模拟：亲手发现异常</h3>
+                <p class="text-slate-600 mt-2">拖动下方的“测试点”，观察其重构误差和异常分数的变化。</p>
+            </div>
+            <div class="chart-container bg-white rounded-2xl shadow-lg p-4">
+                <canvas id="detectionCanvas"></canvas>
+            </div>
+            <div class="text-center mt-6 bg-white p-4 rounded-lg shadow-md max-w-sm mx-auto">
+                <p class="text-lg font-bold">最终异常分数: <span id="anomalyScore" class="text-2xl text-rose-600 font-mono">0.00</span></p>
+                <p id="detection-status" class="text-lg font-semibold text-green-600 mt-1">正常</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Formulas -->
+        <section id="formulas">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800">核心公式</h3>
+                <p class="text-slate-600 mt-2">算法背后的数学原理。</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto space-y-8">
+                <div>
+                    <h4 class="font-bold text-lg mb-2">1. 判别器损失函数</h4>
+                    <p class="text-sm bg-slate-100 p-4 rounded-md font-mono">L<sub>Dxx</sub> = E[log D<sub>xx</sub>(x,x)] + E[log (1 - D<sub>xx</sub>(x,x̂))]</p>
+                    <p class="text-xs text-slate-500 mt-2">D<sub>zz</sub> 和 D<sub>xz</sub> 的损失函数形式类似，目标都是最大化对真伪样本的区分能力。</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">2. 生成器总损失</h4>
+                    <p class="text-sm bg-slate-100 p-4 rounded-md font-mono">L<sub>Gen</sub><sup>total</sup> = L<sub>Gen</sub> + λ · L<sub>Recon</sub></p>
+                    <p class="text-xs text-slate-500 mt-2">生成器的目标是欺骗所有判别器（L<sub>Gen</sub>），同时可选地最小化重构误差（L<sub>Recon</sub>）。</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">3. 最终异常分数</h4>
+                    <p class="text-sm bg-slate-100 p-4 rounded-md font-mono">s(x) = ||D<sub>xx</sub>(x,x) - D<sub>xx</sub>(x,x̂)||²</p>
+                    <p class="text-xs text-slate-500 mt-2">异常分数由判别器 D<sub>xx</sub> 对“真实-真实”对和“真实-重构”对的打分差异决定。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="container mx-auto px-4 py-6 text-center text-sm">
+            <p>ALAD 算法交互式详解 | 灵感源于 PyOD 社区</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Section 2: Player Cards Interaction ---
+        const playerCards = document.querySelectorAll('.player-card');
+        playerCards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('bg-indigo-100');
+                card.classList.toggle('scale-105');
+            });
+        });
+
+        // --- Section 3: Training Game Animation ---
+        const trainingCanvas = document.getElementById('trainingCanvas');
+        const trainingCtx = trainingCanvas.getContext('2d');
+        const prevStepBtn = document.getElementById('prevStepBtn');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        const trainingExplanation = document.getElementById('training-explanation');
+
+        let currentStep = 0;
+        const totalSteps = 6;
+        let components = {};
+        let animationFrameId;
+
+        const explanations = [
+            "开始：我们有真实的样本X和随机噪声Z作为输入。",
+            "生成器工作：真实数据X通过编码器生成伪造特征Z_gen；随机噪声Z通过解码器生成伪造数据X_gen。",
+            "鉴定会 (D_xz)：鉴定师D_xz学习区分(真实数据, 伪造特征)和(伪造数据, 真实特征)的匹配度。",
+            "鉴定会 (D_xx & D_zz)：鉴定师D_xx和D_zz学习区分数据和特征的一致性。",
+            "生成器反击：生成器(Enc+Dec)更新参数，目标是生成足以骗过所有鉴定师的伪造品。",
+            "达到平衡：经过多轮对抗，系统达到平衡。编码器和解码器已完全掌握正常数据的分布。"
+        ];
+
+        function resizeTrainingCanvas() {
+            const container = trainingCanvas.parentElement;
+            trainingCanvas.width = container.clientWidth;
+            trainingCanvas.height = container.clientHeight;
+            
+            const w = trainingCanvas.width;
+            const h = trainingCanvas.height;
+            
+            components = {
+                x_real: { x: w * 0.15, y: h * 0.1, text: 'X_real' },
+                z_real: { x: w * 0.85, y: h * 0.1, text: 'Z_real' },
+                enc: { x: w * 0.15, y: h * 0.35, text: 'Encoder' },
+                dec: { x: w * 0.85, y: h * 0.35, text: 'Decoder' },
+                z_gen: { x: w * 0.15, y: h * 0.6, text: 'Z_gen' },
+                x_gen: { x: w * 0.85, y: h * 0.6, text: 'X_gen' },
+                d_xz: { x: w * 0.5, y: h * 0.85, text: 'D_xz' },
+                d_xx: { x: w * 0.2, y: h * 0.85, text: 'D_xx' },
+                d_zz: { x: w * 0.8, y: h * 0.85, text: 'D_zz' },
+            };
+            drawTrainingStep();
+        }
+
+        function drawComponent(comp, color = 'rgb(79, 70, 229)') {
+            trainingCtx.fillStyle = color;
+            trainingCtx.strokeStyle = color;
+            trainingCtx.lineWidth = 2;
+            trainingCtx.beginPath();
+            trainingCtx.roundRect(comp.x - 40, comp.y - 15, 80, 30, [8]);
+            trainingCtx.stroke();
+            trainingCtx.fillStyle = color;
+            trainingCtx.font = '14px "Noto Sans SC"';
+            trainingCtx.textAlign = 'center';
+            trainingCtx.textBaseline = 'middle';
+            trainingCtx.fillText(comp.text, comp.x, comp.y);
+        }
+        
+        function drawArrow(from, to, color = 'gray', dashed = false) {
+            trainingCtx.beginPath();
+            trainingCtx.strokeStyle = color;
+            trainingCtx.lineWidth = 1.5;
+            if (dashed) {
+                trainingCtx.setLineDash([5, 5]);
+            } else {
+                trainingCtx.setLineDash([]);
+            }
+            trainingCtx.moveTo(from.x, from.y + 15);
+            trainingCtx.lineTo(to.x, to.y - 15);
+            trainingCtx.stroke();
+            // Arrowhead
+            trainingCtx.save();
+            trainingCtx.translate(to.x, to.y - 15);
+            trainingCtx.rotate(Math.atan2(to.y - from.y, to.x - from.x) - Math.PI / 2);
+            trainingCtx.beginPath();
+            trainingCtx.moveTo(0, 0);
+            trainingCtx.lineTo(-5, -10);
+            trainingCtx.lineTo(5, -10);
+            trainingCtx.closePath();
+            trainingCtx.fillStyle = color;
+            trainingCtx.fill();
+            trainingCtx.restore();
+        }
+
+        function drawTrainingStep() {
+            trainingCtx.clearRect(0, 0, trainingCanvas.width, trainingCanvas.height);
+            Object.values(components).forEach(comp => drawComponent(comp));
+
+            if (currentStep >= 1) { // Step 1: Generator
+                drawArrow(components.x_real, components.enc, 'blue');
+                drawArrow(components.enc, components.z_gen, 'blue');
+                drawArrow(components.z_real, components.dec, 'blue');
+                drawArrow(components.dec, components.x_gen, 'blue');
+            }
+            if (currentStep >= 2) { // Step 2: D_xz
+                drawArrow(components.x_real, components.d_xz, 'red', true);
+                drawArrow(components.z_gen, components.d_xz, 'red', true);
+                drawArrow(components.x_gen, components.d_xz, 'red', true);
+                drawArrow(components.z_real, components.d_xz, 'red', true);
+            }
+            if (currentStep >= 3) { // Step 3: D_xx, D_zz
+                 drawArrow(components.x_real, components.d_xx, 'red', true);
+                 drawArrow(components.x_gen, components.d_xx, 'red', true);
+                 drawArrow(components.z_real, components.d_zz, 'red', true);
+                 drawArrow(components.z_gen, components.d_zz, 'red', true);
+            }
+            if (currentStep >= 4) { // Step 4: Generator learns
+                drawArrow(components.d_xz, components.enc, 'green', true);
+                drawArrow(components.d_xz, components.dec, 'green', true);
+            }
+            if (currentStep >= 5) { // Step 5: Balance
+                trainingCtx.font = 'bold 24px "Noto Sans SC"';
+                trainingCtx.fillStyle = 'rgba(22, 163, 74, 0.8)';
+                trainingCtx.fillText('达到平衡', trainingCanvas.width / 2, trainingCanvas.height / 2);
+            }
+
+            trainingExplanation.textContent = explanations[currentStep];
+            prevStepBtn.disabled = currentStep === 0;
+            nextStepBtn.disabled = currentStep === totalSteps - 1;
+        }
+
+        nextStepBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                drawTrainingStep();
+            }
+        });
+        prevStepBtn.addEventListener('click', () => {
+            if (currentStep > 0) {
+                currentStep--;
+                drawTrainingStep();
+            }
+        });
+
+        window.addEventListener('resize', resizeTrainingCanvas);
+        resizeTrainingCanvas();
+
+        // --- Section 4: Detection Simulation ---
+        const detectionCanvas = document.getElementById('detectionCanvas');
+        const detectionCtx = detectionCanvas.getContext('2d');
+        const scoreSpan = document.getElementById('anomalyScore');
+        const statusSpan = document.getElementById('detection-status');
+
+        let isDragging = false;
+        let testPoint = { x: 0, y: 0 };
+        let clusterCenter = { x: 0, y: 0 };
+        let normalPoints = [];
+        const numNormalPoints = 50;
+
+        function resizeDetectionCanvas() {
+            const container = detectionCanvas.parentElement;
+            detectionCanvas.width = container.clientWidth;
+            detectionCanvas.height = container.clientHeight;
+            
+            clusterCenter = { x: detectionCanvas.width / 2, y: detectionCanvas.height / 2 };
+            testPoint = { x: clusterCenter.x + 50, y: clusterCenter.y - 50 };
+            
+            normalPoints = [];
+            for (let i = 0; i < numNormalPoints; i++) {
+                const angle = Math.random() * 2 * Math.PI;
+                const radius = Math.random() * Math.min(detectionCanvas.width, detectionCanvas.height) * 0.2;
+                normalPoints.push({
+                    x: clusterCenter.x + Math.cos(angle) * radius,
+                    y: clusterCenter.y + Math.sin(angle) * radius
+                });
+            }
+            drawDetection();
+        }
+
+        function drawDetection() {
+            detectionCtx.clearRect(0, 0, detectionCanvas.width, detectionCanvas.height);
+            
+            // Draw normal cluster
+            normalPoints.forEach(p => {
+                detectionCtx.beginPath();
+                detectionCtx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
+                detectionCtx.fillStyle = 'rgba(79, 70, 229, 0.5)';
+                detectionCtx.fill();
+            });
+
+            // Calculate reconstruction and score
+            const dist = Math.sqrt((testPoint.x - clusterCenter.x)**2 + (testPoint.y - clusterCenter.y)**2);
+            const maxDist = Math.min(detectionCanvas.width, detectionCanvas.height) / 2;
+            const anomalyScore = Math.min((dist / maxDist)**2 * 5, 10); // Scaled score
+            
+            // Reconstructed point is pulled towards the cluster center
+            const pullFactor = 1 - Math.tanh(dist / maxDist);
+            const reconPoint = {
+                x: clusterCenter.x + (testPoint.x - clusterCenter.x) * pullFactor,
+                y: clusterCenter.y + (testPoint.y - clusterCenter.y) * pullFactor
+            };
+
+            // Draw line for reconstruction error
+            detectionCtx.beginPath();
+            detectionCtx.strokeStyle = 'rgba(220, 38, 38, 0.7)';
+            detectionCtx.lineWidth = 2;
+            detectionCtx.setLineDash([6, 3]);
+            detectionCtx.moveTo(testPoint.x, testPoint.y);
+            detectionCtx.lineTo(reconPoint.x, reconPoint.y);
+            detectionCtx.stroke();
+            detectionCtx.setLineDash([]);
+
+            // Draw points
+            detectionCtx.beginPath();
+            detectionCtx.arc(reconPoint.x, reconPoint.y, 6, 0, 2 * Math.PI);
+            detectionCtx.fillStyle = 'rgba(160, 160, 160, 0.8)';
+            detectionCtx.fill();
+            detectionCtx.fillText('重构点', reconPoint.x, reconPoint.y - 15);
+
+            detectionCtx.beginPath();
+            detectionCtx.arc(testPoint.x, testPoint.y, 8, 0, 2 * Math.PI);
+            detectionCtx.fillStyle = isDragging ? 'rgb(220, 38, 38)' : 'rgb(244, 63, 94)';
+            detectionCtx.fill();
+            detectionCtx.fillStyle = 'black';
+            detectionCtx.font = '12px "Noto Sans SC"';
+            detectionCtx.textAlign = 'center';
+            detectionCtx.fillText('测试点 (拖动我)', testPoint.x, testPoint.y - 20);
+
+            // Update UI
+            scoreSpan.textContent = anomalyScore.toFixed(2);
+            if (anomalyScore > 1.5) {
+                statusSpan.textContent = '异常';
+                statusSpan.className = 'text-lg font-semibold text-rose-600 mt-1';
+            } else {
+                statusSpan.textContent = '正常';
+                statusSpan.className = 'text-lg font-semibold text-green-600 mt-1';
+            }
+        }
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        detectionCanvas.addEventListener('mousedown', (e) => {
+            const pos = getMousePos(detectionCanvas, e);
+            const dist = Math.sqrt((pos.x - testPoint.x)**2 + (pos.y - testPoint.y)**2);
+            if (dist < 15) {
+                isDragging = true;
+            }
+        });
+
+        detectionCanvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            drawDetection();
+        });
+        
+        detectionCanvas.addEventListener('mouseout', () => {
+            isDragging = false;
+            drawDetection();
+        });
+
+        detectionCanvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const pos = getMousePos(detectionCanvas, e);
+                testPoint.x = pos.x;
+                testPoint.y = pos.y;
+                drawDetection();
+            }
+        });
+
+        window.addEventListener('resize', resizeDetectionCanvas);
+        resizeDetectionCanvas();
+
+    </script>
+</body>
+</html>
