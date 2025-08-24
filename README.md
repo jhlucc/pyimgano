@@ -6,3 +6,4 @@
 - knn
 - ocsvm
 - ae1svm
+- abod
