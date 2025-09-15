@@ -30,7 +30,7 @@ class ConvVAE(nn.Module):
         self.encoder_conv = nn.Sequential(
             # 256x256x3 -> 128x128x32
             nn.Conv2d(input_channels, 32, kernel_size=3, stride=2, padding=1),
-            nn.GroupNorm(8, 32),  # 改进1: 使用GroupNorm
+            nn.GroupNorm(8, 32),  # 使用GroupNorm
             nn.LeakyReLU(0.2, inplace=True),
 
             # 128x128x32 -> 64x64x64
