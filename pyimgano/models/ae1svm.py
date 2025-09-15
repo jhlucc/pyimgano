@@ -90,7 +90,7 @@ class VisionAE1SVM(BaseVisionDeepDetector):
                  image_shape=(3, 224, 224), # 新增：需要知道图像输入形状
                  **kwargs):
 
-        # 存储本算法特有的参数
+        # 存储
         self.hidden_neurons = hidden_neurons if hidden_neurons is not None else [128, 64]
         self.alpha = alpha
         self.sigma = sigma
