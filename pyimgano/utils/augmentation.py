@@ -3,11 +3,27 @@
 from __future__ import annotations
 
 from functools import partial
+import random
 from typing import Any, Callable, Iterable, Mapping, MutableMapping, Sequence, Tuple
 
 import numpy as np
 from PIL import Image
 from PIL import ImageEnhance
+
+try:
+    Resampling = Image.Resampling  # Pillow>=9.1
+except AttributeError:  # pragma: no cover
+    class Resampling:
+        NEAREST = Image.NEAREST
+        BILINEAR = Image.BILINEAR
+        BICUBIC = Image.BICUBIC
+        LANCZOS = Image.LANCZOS
+
+try:
+    Transform = Image.Transform  # Pillow>=9.1
+except AttributeError:  # pragma: no cover - compatibility
+    class Transform:
+        AFFINE = Image.AFFINE
 
 from .image_ops import random_horizontal_flip
 from .image_ops_cv import (
@@ -217,7 +233,12 @@ def trivial_augment(image: Image.Image, magnitude: float = 0.5) -> Image.Image:
 
     ops = [
         lambda img, mag: img.rotate(int(np.random.uniform(-30, 30)), resample=Image.BILINEAR),
-        lambda img, mag: img.transform(img.size, Image.AFFINE, (1, mag * np.random.uniform(-0.3, 0.3), 0, 0, 1, 0)),
+        lambda img, mag: img.transform(
+            img.size,
+            Transform.AFFINE,
+            (1, mag * np.random.uniform(-0.3, 0.3), 0, 0, 1, 0),
+            resample=Resampling.BILINEAR,
+        ),
         lambda img, mag: _enhance(img, "brightness", 1 + (np.random.uniform(-1, 1) * mag)),
         lambda img, mag: _enhance(img, "contrast", 1 + (np.random.uniform(-1, 1) * mag)),
         lambda img, mag: _enhance(img, "color", 1 + (np.random.uniform(-1, 1) * mag)),

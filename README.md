@@ -1,65 +1,64 @@
 # PyImgAno
 
-PyImgAno 是一个面向图像异常检测的实验性工具集，现已按照 PyTorch/TF 等主流框架的结构进行模块化拆分：
+A modular computer-vision anomaly detection toolkit.
 
-- `pyimgano.datasets`: 数据集、转换与数据模块，负责图像 I/O 与 Loader 构建。
-- `pyimgano.models`: 模型基类、注册表以及经典/深度算法实现，可通过工厂接口按名称创建。
+> Translations: [中文](README_cn.md) · [日本語](README_ja.md) · [한국어](README_ko.md)
 
-## 快速上手
+---
 
-```python
-from pyimgano import datasets, models
+## Contents
 
-# 1) 构建数据模块
-module = datasets.VisionDataModule(
-    train="/path/to/train",
-    val="/path/to/val",
-    loader_config=datasets.DataLoaderConfig(batch_size=16),
-)
-module.setup("fit")
-train_loader = module.train_dataloader()
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Testing](#testing)
+- [Directory Overview](#directory-overview)
 
-# 2) 通过注册表实例化模型
-loda = models.create_model("vision_loda", contamination=0.05, n_bins="auto")
+## Features
 
-# 3) 训练并推理
-features = ...  # 预提取的特征
-loda.fit(features)
+- Detectors: classical wrappers (`vision_kpca`, `vision_xgbod`, `vision_loci`, etc.) alongside deep models (`vision_fastflow`, `vision_deep_svdd`, `vision_reverse_distillation`).
+- Data utilities: preprocessing helpers, augmentation registry (MixUp, CutMix, Auto/Rand/TrivialAugment, diffusion stubs), and defect-oriented filters (illumination normalization, top-hat, Gabor banks).
+- Factory API: `models.create_model(name, **kwargs)` for consistent instantiation; `utils.build_augmentation_pipeline` for modular augmentation flows.
+
+## Installation
+
+```bash
+pip install -e .
+# with diffusion extras
+pip install -e .[diffusion]
 ```
 
-### 数据模块 + 工厂组合示例
+## Quick Start
 
 ```python
-from pyimgano import datasets, models
+from pyimgano import models, utils
 
-data = datasets.VisionDataModule(
-    train="/path/to/train",
-    val="/path/to/val",
-    loader_config=datasets.DataLoaderConfig(batch_size=8),
-)
-data.setup("fit")
-
-# 直接使用注册表构建深度模型
-autoencoder = models.create_model(
-    "ae_resnet_unet",
+feature_extractor = utils.ImagePreprocessor(resize=(256, 256), output_tensor=True)
+detector = models.create_model(
+    "vision_fastflow",
     epoch_num=5,
     batch_size=8,
-    contamination=0.05,
 )
-
-# BaseVisionDeepDetector 派生类依旧接受图像路径列表
-autoencoder.fit(list(data.train_items))
-val_scores = autoencoder.decision_function(list(data.val_items))
+train_paths = ["/path/to/img1.jpg", "/path/to/img2.jpg"]
+detector.fit(train_paths)
 ```
 
-可用模型列表：
+## Testing
 
-```python
-from pyimgano.models import list_models
-print(list_models())  # ["ae_resnet_unet", "core_loda", "vae_conv", "vision_loda", ...]
-
-# 也可以按标签过滤
-print(list_models(tags=("deep",)))
+```bash
+pip install -e .[dev]
+pytest
 ```
 
-欢迎根据自身场景扩展数据模块或向注册表添加新的检测器实现。
+## Directory Overview
+
+```text
+pyimgano/
+├─ models/            # Classical & deep detectors with registry support
+├─ utils/             # Image ops, augmentations, defect preprocess, registries
+├─ datasets/          # Vision data utilities (transforms, datamodule)
+├─ examples/          # Usage samples (registry quickstart, ensemble demos)
+└─ tests/             # Pytest suite for utils & preprocessing
+```
+
+Dependencies such as `pyod`, `torchvision`, and optional `diffusers` are declared in `setup.py`.

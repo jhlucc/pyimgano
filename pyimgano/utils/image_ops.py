@@ -7,6 +7,15 @@ from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 from PIL import Image
 
+try:
+    Resampling = Image.Resampling  # Pillow >= 9.1
+except AttributeError:  # pragma: no cover - for older Pillow
+    class Resampling:
+        NEAREST = Image.NEAREST
+        BILINEAR = Image.BILINEAR
+        BICUBIC = Image.BICUBIC
+        LANCZOS = Image.LANCZOS
+
 
 def load_image(path: str, mode: str = "RGB") -> Image.Image:
     """Load an image from disk and optionally convert color mode."""
@@ -18,13 +27,13 @@ def load_image(path: str, mode: str = "RGB") -> Image.Image:
 
 
 def resize_image(image: Image.Image, size: Tuple[int, int], *, keep_ratio: bool = False,
-                 resample=Image.BILINEAR) -> Image.Image:
+                 resample=Resampling.BILINEAR) -> Image.Image:
     """Resize image to a target size; optionally preserve aspect ratio."""
 
     if keep_ratio:
-        image.thumbnail(size, resample)
+        image.thumbnail(size, resample=resample)
         return image
-    return image.resize(size, resample)
+    return image.resize(size, resample=resample)
 
 
 def center_crop(image: Image.Image, size: Tuple[int, int]) -> Image.Image:
