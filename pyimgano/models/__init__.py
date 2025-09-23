@@ -30,6 +30,7 @@ _auto_import(
         "alad",
         "cblof",
         "dbscan",
+        "deep_svdd",
         "efficientad",
         "Isolationforest",
         "kpca",
