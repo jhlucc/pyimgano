@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from .baseCv import BaseVisionDeepDetector
+from .registry import register_model
 
 
 def get_activation(name: str) -> nn.Module:
@@ -139,6 +140,11 @@ class MLPDisc(nn.Module):
 # ------------------------------
 # ALAD
 # ------------------------------
+@register_model(
+    "vision_alad",
+    tags=("vision", "deep", "gan"),
+    metadata={"description": "Adversarially Learned Anomaly Detection"},
+)
 class ALAD(BaseVisionDeepDetector):
     """ALAD，继承 BaseVisionDeepDetector。
     关键接口：

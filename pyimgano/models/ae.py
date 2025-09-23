@@ -25,6 +25,7 @@ import multiprocessing
 from sklearn.decomposition import PCA as sklearn_PCA
 
 from pyimgano.datasets import ImagePathDataset
+from .registry import register_model
 
 
 class ResNetUNetAE(nn.Module):
@@ -175,6 +176,11 @@ class ComposedLoss(nn.Module):
         return self.alpha * l1_loss + (1 - self.alpha) * ssim_loss
 
 
+@register_model(
+    "ae_resnet_unet",
+    tags=("vision", "deep", "autoencoder"),
+    metadata={"description": "基于 ResNet-UNet 的重建式异常检测器"},
+)
 class OptimizedAEDetector:
     """
     优化版自编码器异常检测器

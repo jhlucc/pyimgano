@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 from .baseCv import BaseVisionDeepDetector
+from .registry import register_model
 
 from pyod.utils.stat_models import pairwise_distances_no_broadcast
 from pyod.utils.torch_utility import get_activation_by_name
@@ -81,6 +82,11 @@ class InnerAE1SVM(nn.Module):
     def svm_decision_function(self, rff_features):
         return torch.matmul(rff_features, self.svm_weights) + self.svm_bias
 
+@register_model(
+    "vision_ae1svm",
+    tags=("vision", "deep", "svm"),
+    metadata={"description": "自编码器 + 一类 SVM 组合的视觉检测器"},
+)
 class VisionAE1SVM(BaseVisionDeepDetector):
     """
     一个经过重构的、用于视觉任务的 AE1SVM 检测器。
@@ -156,4 +162,3 @@ class VisionAE1SVM(BaseVisionDeepDetector):
                                                          reconstructions.cpu().numpy().reshape(images.shape[0], -1))
                 all_scores.extend(scores)
         return all_scores
-

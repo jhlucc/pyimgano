@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 
 # 只从本地基类导入
 from .baseml import BaseVisionDetector
+from .registry import register_model
 
 
 # ===================================================================
@@ -433,6 +434,11 @@ class CoreCBLOF:
 #                     VisionCBLOF（主类）
 # ===================================================================
 
+@register_model(
+    "vision_cblof",
+    tags=("vision", "classical", "clustering"),
+    metadata={"description": "基于 CBLOF 的视觉异常检测器"},
+)
 class VisionCBLOF(BaseVisionDetector):
     """
     基于CBLOF算法的视觉异常检测器

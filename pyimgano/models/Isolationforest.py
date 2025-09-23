@@ -7,7 +7,14 @@ from sklearn.decomposition import PCA
 import joblib
 from tqdm import tqdm
 
+from .registry import register_model
 
+
+@register_model(
+    "isolation_forest_struct",
+    tags=("vision", "classical", "ensemble"),
+    metadata={"description": "结构特征 Isolation Forest 检测器"},
+)
 class IsolationForestStructureDetector:
     """
       结构异常检测器

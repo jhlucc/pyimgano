@@ -7,7 +7,14 @@ from sklearn.decomposition import PCA
 from tqdm import tqdm
 import joblib
 
+from .registry import register_model
 
+
+@register_model(
+    "one_class_cnn",
+    tags=("vision", "classical", "svm"),
+    metadata={"description": "基于多特征的一类 SVM 图像检测器"},
+)
 class ImageAnomalyDetector:
     def __init__(self, feature_type='combined', nu=0.05):
         """

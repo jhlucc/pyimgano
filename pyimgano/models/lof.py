@@ -7,7 +7,14 @@ from sklearn.decomposition import PCA
 import joblib
 from tqdm import tqdm
 
+from .registry import register_model
 
+
+@register_model(
+    "lof_structure",
+    tags=("vision", "classical", "neighbors"),
+    metadata={"description": "结构特征 LOF 异常检测器"},
+)
 class LOFStructureAnomalyDetector:
     """
     基于LOF的结构异常检测器

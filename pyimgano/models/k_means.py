@@ -9,7 +9,14 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 
+from .registry import register_model
 
+
+@register_model(
+    "kmeans_anomaly",
+    tags=("vision", "classical", "clustering"),
+    metadata={"description": "K-Means 图像异常检测器"},
+)
 class KMeansAnomalyDetector:
     """
     基于K-means的图像异常检测器

@@ -1,3 +1,18 @@
+import os
+
+import cv2
+import torch
+from torch import nn
+from torchvision import models, transforms
+
+from .registry import register_model
+
+
+@register_model(
+    "efficient_ad",
+    tags=("vision", "deep", "distillation"),
+    metadata={"description": "EfficientAD 快速异常检测器"},
+)
 class EfficientAD:
     """
     EfficientAD - 专为实时检测设计

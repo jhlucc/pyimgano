@@ -7,7 +7,14 @@ import joblib
 from datetime import datetime
 import json
 
+from .registry import register_model
 
+
+@register_model(
+    "ssim_template",
+    tags=("vision", "classical", "template"),
+    metadata={"description": "基于模板匹配的 SSIM 异常检测器"},
+)
 class OneStopServiceAnomalyDetector:
     """
     一体机自助服务界面异常检测器

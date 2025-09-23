@@ -6,7 +6,14 @@ import cv2
 import os
 from sklearn.random_projection import GaussianRandomProjection
 
+from .registry import register_model
 
+
+@register_model(
+    "padim",
+    tags=("vision", "deep", "patch", "distribution"),
+    metadata={"description": "PaDiM 风格统计异常检测"},
+)
 class PaDiM:
     """
     PaDiM - 轻量级异常检测，适合边缘部署

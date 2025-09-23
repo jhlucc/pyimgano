@@ -15,7 +15,8 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from pyod.models.ocsvm import OCSVM
-from baseml import BaseVisionDetector
+from .baseml import BaseVisionDetector
+from .registry import register_model
 
 
 class BaseFeatureExtractor(ABC):
@@ -388,6 +389,11 @@ class CombinedFeatureExtractor(BaseFeatureExtractor):
 #                         通用VisionOCSVM检测器
 # ============================================================================
 
+@register_model(
+    "vision_ocsvm",
+    tags=("vision", "classical", "svm"),
+    metadata={"description": "模块化一类 SVM 视觉异常检测器"},
+)
 class VisionOCSVM(BaseVisionDetector):
     """
     通用的基于One-Class SVM的视觉异常检测器

@@ -4,7 +4,11 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from pyod.models.base_dl import BaseDeepLearningDetector
 
-from pyimgano.datasets import VisionImageDataset
+from pyimgano.datasets import (
+    VisionImageDataset,
+    default_eval_transforms,
+    default_train_transforms,
+)
 
 
 # --- 核心基类 ---
@@ -39,15 +43,8 @@ class BaseVisionDeepDetector(BaseDeepLearningDetector):
             self.train_transform = train_transform
         else:
             if self.preprocessing:
-                # 默认训练时可以加入轻微的数据增强
-                self.train_transform = transforms.Compose([
-                    transforms.Resize((256, 256)),
-                    transforms.RandomCrop(224),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                         std=[0.229, 0.224, 0.225]),
-                ])
+                # 默认训练时使用 datasets 模块提供的预设
+                self.train_transform = default_train_transforms()
             else:
                 self.train_transform = transforms.ToTensor()
         # 为评估过程设置 transform
@@ -56,13 +53,7 @@ class BaseVisionDeepDetector(BaseDeepLearningDetector):
         else:
             if self.preprocessing:
                 # 评估时不应有数据增强，保证结果一致性
-                self.eval_transform = transforms.Compose([
-                    transforms.Resize((256, 256)),
-                    transforms.CenterCrop(224),
-                    transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                         std=[0.229, 0.224, 0.225]),
-                ])
+                self.eval_transform = default_eval_transforms()
             else:
                 self.eval_transform = transforms.ToTensor()
 

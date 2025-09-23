@@ -9,7 +9,14 @@ import joblib
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+from .registry import register_model
 
+
+@register_model(
+    "dbscan_anomaly",
+    tags=("vision", "classical", "clustering"),
+    metadata={"description": "基于 DBSCAN 的图像异常检测器"},
+)
 class DBSCANAnomalyDetector:
     """
     基于DBSCAN的图像异常检测器

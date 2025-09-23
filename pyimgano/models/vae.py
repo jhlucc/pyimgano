@@ -13,6 +13,7 @@ from datetime import datetime
 import multiprocessing
 
 from pyimgano.datasets import ImagePathDataset
+from .registry import register_model
 
 
 class ConvVAE(nn.Module):
@@ -150,6 +151,11 @@ class VAELoss(nn.Module):
         return total_loss, recon_loss, kl_loss
 
 
+@register_model(
+    "vae_conv",
+    tags=("vision", "deep", "variational"),
+    metadata={"description": "卷积变分自编码器异常检测器"},
+)
 class VAEAnomalyDetector:
     """
     改进版VAE异常检测器

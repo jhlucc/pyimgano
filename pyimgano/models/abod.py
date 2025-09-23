@@ -7,10 +7,16 @@
 
 #视觉基类
 from .baseml import BaseVisionDetector
+from .registry import register_model
 # 从PyOD导入ABOD算法
 from pyod.models.abod import ABOD
 
 
+@register_model(
+    "vision_abod",
+    tags=("vision", "classical"),
+    metadata={"description": "基于 ABOD 的视觉异常检测器"},
+)
 class VisionABOD(BaseVisionDetector):
     """
     一个基于ABOD (Angle-based Outlier Detector) 算法的视觉异常检测器。

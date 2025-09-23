@@ -7,7 +7,14 @@ from tqdm import tqdm
 import json
 from collections import defaultdict
 
+from .registry import register_model
 
+
+@register_model(
+    "ssim_struct",
+    tags=("vision", "classical", "template"),
+    metadata={"description": "结构化多模板弹窗检测器"},
+)
 class MultiTemplatePopupStructDetector:
     """
     模板规则弹窗检测器

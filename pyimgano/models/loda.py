@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 
 # 只从本地基类导入
 from .baseml import BaseVisionDetector
+from .registry import register_model
 
 
 # ===================================================================
@@ -221,6 +222,11 @@ class LODAFeatureExtractor:
 #                     核心LODA算法
 # ===================================================================
 
+@register_model(
+    "core_loda",
+    tags=("classical", "projection", "density"),
+    metadata={"description": "核心 LODA 算法实现"},
+)
 class CoreLODA:
     """
     核心LODA算法实现 - 轻量级在线异常检测
@@ -384,6 +390,11 @@ class CoreLODA:
 #                     VisionLODA主类
 # ===================================================================
 
+@register_model(
+    "vision_loda",
+    tags=("vision", "classical"),
+    metadata={"description": "基于 LODA 的视觉异常检测器"},
+)
 class VisionLODA(BaseVisionDetector):
     """
     基于LODA算法的视觉异常检测器
