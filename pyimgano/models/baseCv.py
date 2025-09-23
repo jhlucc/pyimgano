@@ -1,33 +1,10 @@
 # -*- coding: utf-8 -*-
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from torchvision import transforms
-from PIL import Image
 from pyod.models.base_dl import BaseDeepLearningDetector
 
-
-class ImageDataset(Dataset):
-    """一个简单的图像数据集类，用于从路径加载图片。"""
-
-    def __init__(self, image_paths, transform=None):
-        self.image_paths = image_paths
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.image_paths)
-
-    def __getitem__(self, idx):
-        try:
-            # 以 RGB 格式打开图片，避免单通道灰度图或带Alpha通道的图片出错
-            img = Image.open(self.image_paths[idx]).convert('RGB')
-            if self.transform:
-                img = self.transform(img)
-            # 返回图像本身作为数据和目标，这在自监督学习（如自编码器）中很常见
-            return img, img
-        except Exception as e:
-            print(f"加载图片时出错 {self.image_paths[idx]}: {e}")
-            # 返回一个占位符张量
-            return torch.zeros((3, 224, 224)), torch.zeros((3, 224, 224))
+from pyimgano.datasets import VisionImageDataset
 
 
 # --- 核心基类 ---
@@ -102,7 +79,7 @@ class BaseVisionDeepDetector(BaseDeepLearningDetector):
         # 1. 构建模型
         self.model = self.build_model()
         # 2. 创建图像数据加载器 (使用训练专用的 transform)
-        train_dataset = ImageDataset(image_paths=X, transform=self.train_transform)
+        train_dataset = VisionImageDataset(image_paths=X, transform=self.train_transform)
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
 
         # 3. 准备训练 (来自父类的方法)
@@ -126,10 +103,9 @@ class BaseVisionDeepDetector(BaseDeepLearningDetector):
         current_batch_size = batch_size if batch_size is not None else self.batch_size
 
         # 创建图像数据加载器
-        eval_dataset = ImageDataset(image_paths=X, transform=self.eval_transform)
+        eval_dataset = VisionImageDataset(image_paths=X, transform=self.eval_transform)
         eval_loader = DataLoader(eval_dataset, batch_size=current_batch_size, shuffle=False)
 
         # 调用父类的评估方法 evaluating_forward
         scores = self.evaluate(eval_loader)
         return scores
-

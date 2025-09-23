@@ -296,8 +296,9 @@ class CoreLODA:
                 self.limits_.append(limits)
 
                 # 计算训练样本的分数
-                inds = np.searchsorted(limits[:n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(limits, projected_data,
+                                       side='right') - 1
+                inds = np.clip(inds, 0, n_bins - 1)
                 pred_scores[:, 0] += -self.weights[i] * np.log(histogram[inds])
 
         elif isinstance(self.n_bins, numbers.Integral):
@@ -321,8 +322,9 @@ class CoreLODA:
                 self.histograms_[i, :] /= np.sum(self.histograms_[i, :])
 
                 # 计算训练样本的分数
-                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(self.limits_[i, :], projected_data,
+                                       side='right') - 1
+                inds = np.clip(inds, 0, self.n_bins - 1)
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     self.histograms_[i, inds])
         else:
@@ -350,18 +352,22 @@ class CoreLODA:
             for i in range(self.n_random_cuts):
                 projected_data = self.projections_[i, :].dot(X.T)
 
-                inds = np.searchsorted(self.limits_[i][:self.n_bins_[i] - 1],
-                                       projected_data, side='left')
+                histogram = self.histograms_[i]
+                limits = self.limits_[i]
+                inds = np.searchsorted(limits, projected_data,
+                                       side='right') - 1
+                inds = np.clip(inds, 0, histogram.size - 1)
                 pred_scores[:, 0] += -self.weights[i] * np.log(
-                    self.histograms_[i][inds])
+                    histogram[inds])
 
         elif isinstance(self.n_bins, numbers.Integral):
             # 固定bin模式
             for i in range(self.n_random_cuts):
                 projected_data = self.projections_[i, :].dot(X.T)
 
-                inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                       projected_data, side='left')
+                inds = np.searchsorted(self.limits_[i, :], projected_data,
+                                       side='right') - 1
+                inds = np.clip(inds, 0, self.n_bins - 1)
                 pred_scores[:, 0] += -self.weights[i] * np.log(
                     self.histograms_[i, inds])
 

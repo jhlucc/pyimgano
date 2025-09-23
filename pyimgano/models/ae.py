@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from torchvision import transforms, models
 from pytorch_msssim import ssim, SSIM
 import joblib
@@ -23,6 +23,8 @@ except ImportError:
     print("FAISS not available, using fallback method for latent distance")
 import multiprocessing
 from sklearn.decomposition import PCA as sklearn_PCA
+
+from pyimgano.datasets import ImagePathDataset
 
 
 class ResNetUNetAE(nn.Module):
@@ -173,27 +175,6 @@ class ComposedLoss(nn.Module):
         return self.alpha * l1_loss + (1 - self.alpha) * ssim_loss
 
 
-class ImageDataset(Dataset):
-    """图像数据集类"""
-
-    def __init__(self, image_paths, transform=None):
-        self.image_paths = image_paths
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.image_paths)
-
-    def __getitem__(self, idx):
-        img_path = self.image_paths[idx]
-        image = cv2.imread(img_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        if self.transform:
-            image = self.transform(image)
-
-        return image, os.path.basename(img_path)
-
-
 class OptimizedAEDetector:
     """
     优化版自编码器异常检测器
@@ -312,8 +293,8 @@ class OptimizedAEDetector:
         print(f"验证集: {len(val_paths)} 张")
 
         # 创建数据加载器
-        train_dataset = ImageDataset(train_paths, transform=self.transform)
-        val_dataset = ImageDataset(val_paths, transform=self.transform)
+        train_dataset = ImagePathDataset(train_paths, transform=self.transform)
+        val_dataset = ImagePathDataset(val_paths, transform=self.transform)
 
         # 动态设置num_workers
         num_workers = min(8, multiprocessing.cpu_count())
