@@ -3,7 +3,7 @@
 A modular computer-vision anomaly detection toolkit.
   
 > Translations: [中文](README_cn.md) · [日本語](README_ja.md) · [한국어](README_ko.md)
-
+ 
 --- 
  
 ## Contents
