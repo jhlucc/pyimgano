@@ -15,7 +15,7 @@ A modular computer-vision anomaly detection toolkit.
 - [Directory Overview](#directory-overview)
 
 ## Features
-
+ 
 - Detectors: classical wrappers (`vision_kpca`, `vision_xgbod`, `vision_loci`, etc.) alongside deep models (`vision_fastflow`, `vision_deep_svdd`, `vision_reverse_distillation`).
 - Data utilities: preprocessing helpers, augmentation registry (MixUp, CutMix, Auto/Rand/TrivialAugment, diffusion stubs), and defect-oriented filters (illumination normalization, top-hat, Gabor banks).
 - Factory API: `models.create_model(name, **kwargs)` for consistent instantiation; `utils.build_augmentation_pipeline` for modular augmentation flows.
